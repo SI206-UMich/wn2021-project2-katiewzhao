@@ -14,8 +14,23 @@ def get_titles_from_search_results(filename):
 
     [('Book title 1', 'Author 1'), ('Book title 2', 'Author 2')...]
     """
+    f = open(filename, "r")
+    htmlcontent = f.read()
+    soup = BeautifulSoup(htmlcontent, "html.parser")
+    bookAnchor = soup.find_all("a", class_ = "bookTitle")
+    authorAnchor = soup.find_all("a", class_ = "authorName")
+    d = {}
+    for row in bookAnchor:
+        bookTitle = row.find("span").get_text().strip()
+        for row in authorAnchor:
+            authorName = row.find("span").get_text().strip()
+            d[bookTitle] = authorName
+    tuples = list(d.items())
+    return tuples
 
-    pass
+    
+
+    
 
 
 def get_search_links():
@@ -32,7 +47,16 @@ def get_search_links():
 
     """
 
-    pass
+    url = "https://www.goodreads.com/search?q=fantasy&qid=NwUsLiA2Nc"
+    r = requests.get(url)
+    soup = BeautifulSoup(r.text, "html.parser")
+    anchor = soup.find_all("a", class_ = "bookTitle")
+    result = []
+    for row in anchor[0:10]:
+        link = row.get("href")
+        totalLink = "https://www.goodreads.com" + link
+        result.append(totalLink)
+    return result
 
 
 def get_book_summary(book_url):
@@ -101,30 +125,35 @@ def extra_credit(filepath):
 class TestCases(unittest.TestCase):
 
     # call get_search_links() and save it to a static variable: search_urls
-
+    search_urls = get_search_links()
 
     def test_get_titles_from_search_results(self):
         # call get_titles_from_search_results() on search_results.htm and save to a local variable
-
+        a = get_titles_from_search_results("search_results.htm")
         # check that the number of titles extracted is correct (20 titles)
-
+        self.assertEqual(len(a), 20)
         # check that the variable you saved after calling the function is a list
-
+        self.assertIsInstance(a, list)
         # check that each item in the list is a tuple
-
+        for item in a:
+            self.assertIsInstance(item, tuple)
         # check that the first book and author tuple is correct (open search_results.htm and find it)
-
+        self.assertEqual(a[0], ("Harry Potter and the Deathly Hallows (Harry Potter, #7)", "J.K. Rowling"))
         # check that the last title is correct (open search_results.htm and find it)
+        self.assertEqual(a[-1], ("Harry Potter: The Prequel (Harry Potter, #0.5)", "J.K. Rowling"))
+
 
     def test_get_search_links(self):
         # check that TestCases.search_urls is a list
-
+        self.assertIsInstance(TestCases.search_urls, list)
         # check that the length of TestCases.search_urls is correct (10 URLs)
-
-
+        self.assertEqual(len(TestCases.search_urls), 10)
         # check that each URL in the TestCases.search_urls is a string
+        for item in TestCases.search_urls:
+            self.assertIsInstance(item, str)
         # check that each URL contains the correct url for Goodreads.com followed by /book/show/
-
+        for item in TestCases.search_urls:
+            self.assertTrue("https://www.goodreads.com/book/show/" in item)
 
     def test_get_book_summary(self):
         # create a local variable – summaries – a list containing the results from get_book_summary()
@@ -141,7 +170,7 @@ class TestCases(unittest.TestCase):
             # check that the third element in the tuple, i.e. pages is an int
 
             # check that the first book in the search has 337 pages
-
+        pass
 
     def test_summarize_best_books(self):
         # call summarize_best_books and save it to a variable
@@ -155,7 +184,7 @@ class TestCases(unittest.TestCase):
         # check that the first tuple is made up of the following 3 strings:'Fiction', "The Midnight Library", 'https://www.goodreads.com/choiceawards/best-fiction-books-2020'
 
         # check that the last tuple is made up of the following 3 strings: 'Picture Books', 'Antiracist Baby', 'https://www.goodreads.com/choiceawards/best-picture-books-2020'
-
+        pass
 
     def test_write_csv(self):
         # call get_titles_from_search_results on search_results.htm and save the result to a variable
@@ -172,7 +201,7 @@ class TestCases(unittest.TestCase):
         # check that the next row is 'Harry Potter and the Deathly Hallows (Harry Potter, #7)', 'J.K. Rowling'
 
         # check that the last row is 'Harry Potter: The Prequel (Harry Potter, #0.5)', 'J.K. Rowling'
-
+        pass
 
 
 if __name__ == '__main__':
