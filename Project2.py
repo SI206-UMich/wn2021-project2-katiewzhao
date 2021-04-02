@@ -80,8 +80,8 @@ def get_book_summary(book_url):
     author = authorAnchor.find("span").get_text().strip()
     pagenumAnchor = soup.find("div", id= "details")
     pagenumAnchor2 = pagenumAnchor.find("div", class_ = "row")
-    pagenum = pagenumAnchor2.find_all("span")[2].get_text().strip(" pages")
-    result_lst = [title, author, int(pagenum)]
+    pagenum = pagenumAnchor2.find_all("span")[-1].get_text().strip(" pages")
+    result_lst = [str(title), str(author), int(pagenum)]
     result = tuple(result_lst)
     return result
 
@@ -197,7 +197,8 @@ class TestCases(unittest.TestCase):
             self.assertEqual(len(item), 3)
             # check that the first two elements in the tuple are string
         for item in summaries:
-            self.assertIsInstance(item[0:2], str)
+            self.assertIsInstance(item[0], str)
+            self.assertIsInstance(item[1], str)
             # check that the third element in the tuple, i.e. pages is an int
         for item in summaries:
             self.assertIsInstance(item[2], int)
@@ -217,7 +218,7 @@ class TestCases(unittest.TestCase):
         # check that the first tuple is made up of the following 3 strings:'Fiction', "The Midnight Library", 'https://www.goodreads.com/choiceawards/best-fiction-books-2020'
         self.assertEqual(a[0], ("Fiction", "The Midnight Library", "https://www.goodreads.com/choiceawards/best-fiction-books-2020"))
         # check that the last tuple is made up of the following 3 strings: 'Picture Books', 'Antiracist Baby', 'https://www.goodreads.com/choiceawards/best-picture-books-2020'
-        self.assertEqual(a[0], ('Picture Books', 'Antiracist Baby', 'https://www.goodreads.com/choiceawards/best-picture-books-2020'))
+        self.assertEqual(a[-1], ('Picture Books', 'Antiracist Baby', 'https://www.goodreads.com/choiceawards/best-picture-books-2020'))
 
     def test_write_csv(self):
         # call get_titles_from_search_results on search_results.htm and save the result to a variable
